@@ -18,7 +18,6 @@ import (
 	"github.com/cschleiden/go-workflows/internal/metrickeys"
 	"github.com/cschleiden/go-workflows/internal/workflowerrors"
 	"github.com/cschleiden/go-workflows/workflow"
-	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -28,6 +27,9 @@ var ErrWorkflowTerminated = errors.New("workflow terminated")
 
 type WorkflowInstanceOptions struct {
 	InstanceID string
+	// ExecutionID may be empty, or may be specified to allow reuse of an
+	// existing instance ID.
+	ExecutionID string
 }
 
 type Client struct {
@@ -54,7 +56,7 @@ func (c *Client) CreateWorkflowInstance(ctx context.Context, options WorkflowIns
 		return nil, fmt.Errorf("converting arguments: %w", err)
 	}
 
-	wfi := core.NewWorkflowInstance(options.InstanceID, uuid.NewString())
+	wfi := core.NewWorkflowInstance(options.InstanceID, options.ExecutionID)
 	metadata := &workflow.Metadata{}
 
 	workflowName := fn.Name(wf)
