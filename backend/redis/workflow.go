@@ -43,6 +43,9 @@ func (rb *redisBackend) GetWorkflowTask(ctx context.Context) (*backend.WorkflowT
 	if err != nil {
 		return nil, fmt.Errorf("reading event stream: %w", err)
 	}
+	if len(msgs) == 0 {
+		return nil, nil
+	}
 
 	payloadKeys := make([]string, 0, len(msgs))
 	newEvents := make([]*history.Event, 0, len(msgs))
